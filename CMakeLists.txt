@@ -4,7 +4,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(vbscript_preprocessor)
 
-add_executable(${PROJECT_NAME} source/main.cpp)
+add_executable(
+    ${PROJECT_NAME} 
+    source/main.cpp
+    source/vbscript_preprocessor.h
+    source/vbscript_preprocessor.cpp)
 
 add_subdirectory(libutilities)
 add_subdirectory(libcommandline)
