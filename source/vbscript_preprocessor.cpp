@@ -9,6 +9,8 @@ namespace VbsPp
 
 constexpr char const *spaceAndTab{" \t"};
 
+std::vector<std::filesystem::path> includedFiles;
+
 bool processInternal(
     std::string_view sourcePath, 
     std::vector<std::string_view> const &includeDirectories,
@@ -105,6 +107,11 @@ void includeFile(
         includeFilePath /= includeFileName;
         if (std::filesystem::exists(includeFilePath))
         {
+            if (std::find(includedFiles.begin(), includedFiles.end(), includeFilePath) != includedFiles.end())
+            {
+                return;
+            }
+            includedFiles.push_back(includeFilePath);
             includeFile.open(includeFilePath);
             while(std::getline(includeFile, line))
             {
