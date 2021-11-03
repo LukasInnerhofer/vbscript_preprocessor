@@ -1,0 +1,6 @@
+[submodule "libutilities"]
+	path = libutilities
+	url = https://github.com/LukasInnerhofer/libutilities
+[submodule "libcommandline"]
+	path = libcommandline
+	url = https://github.com/LukasInnerhofer/libcommandline
