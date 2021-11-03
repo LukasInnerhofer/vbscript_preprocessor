@@ -20,16 +20,17 @@ void process(
 
 int main(int argc, char const *argv[])
 {
+    using namespace LibCommandLine;
     CmdArgs cmdArgs{
-        makeNonNullShared<LibCommandLine::MultiOption>('i'),
-        makeNonNullShared<LibCommandLine::SingleOption>('o')
+        makeNonNullShared<MultiOption>('i'),
+        makeNonNullShared<SingleOption>('o')
     };
-    LibCommandLine::Parser::addOption(cmdArgs.includeDirectories);
-    LibCommandLine::Parser::addOption(cmdArgs.outputFile);
-    LibCommandLine::Parser::expectOperands(LibCommandLine::Parser::ExpectedOperands::One);
+    Parser::addOption(cmdArgs.includeDirectories);
+    Parser::addOption(cmdArgs.outputFile);
+    Parser::expectOperands(Parser::ExpectedOperands::One);
     try
     {
-        LibCommandLine::Parser::parse(argc, argv);
+        Parser::parse(argc, argv);
     }
     catch(std::runtime_error const &e)
     {
@@ -38,7 +39,7 @@ int main(int argc, char const *argv[])
     }
 
     process(
-        LibCommandLine::Parser::getOperands().front(), 
+        Parser::getOperands().front(), 
         cmdArgs.includeDirectories->getArguments(),
         cmdArgs.outputFile->getArgument());
 }
