@@ -50,5 +50,6 @@ int main(int argc, char const *argv[])
     catch (std::exception const &e)
     {
         std::cerr << "Unknown exception: " << e.what() << "\n";
+        return 1;
     }
 }
