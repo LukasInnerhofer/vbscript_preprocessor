@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
     using namespace LibCommandLine;
     CmdArgs cmdArgs{
         makeNonNullShared<MultiOption>('i'),
-        makeNonNullShared<SingleOption>('o')
+        makeNonNullShared<SingleOption>('o', Option::Necessity::Required)
     };
     Parser::addOption(cmdArgs.includeDirectories);
     Parser::addOption(cmdArgs.outputFile);
