@@ -1,6 +1,7 @@
 #include <fstream>
 #include <filesystem>
 #include <iostream>
+#include <string>
 
 #include "vbscript_preprocessor.h"
 
@@ -23,6 +24,7 @@ void process(
 {
     std::string tempFileName{outputPath};
     tempFileName += ".temp";
+    
     if (processInternal(sourcePath, includeDirectories, outputPath))
     {
         do
@@ -53,6 +55,7 @@ bool processInternal(
     std::string originalLine;
     std::string_view line;
     std::string_view directive;
+    std::string_view::size_type offset;
     bool preprocessLine;
     bool preprocessedFile{false};
     while (std::getline(sourceFile, originalLine))
@@ -61,27 +64,32 @@ bool processInternal(
         if (!originalLine.empty())
         {
             line = originalLine;
-            line = line.substr(line.find_first_not_of(spaceAndTab));
-            if (line.at(0) == '#')
+            offset = line.find_first_not_of(spaceAndTab);
+            if (offset < line.size())
             {
-                preprocessLine = true;
-                preprocessedFile = true;
-                directive = line.substr(1, line.find_first_of(spaceAndTab) - 1);
-                
-                if(directive == "include")
+                line = line.substr();
+                if (line.at(0) == '#')
                 {
-                    line = line.substr(line.find_first_of(spaceAndTab));
-                    line = line.substr(line.find_first_not_of(spaceAndTab));
-                    includeFile(
-                        line,
-                        includeDirectories,
-                        outputFile);
-                }
-                else 
-                {
-                    std::cout << "Unsupported directive \"" << directive << "\"\n";    
+                    preprocessLine = true;
+                    preprocessedFile = true;
+                    directive = line.substr(1, line.find_first_of(spaceAndTab) - 1);
+                    
+                    if (directive == "include")
+                    {
+                        line = line.substr(line.find_first_of(spaceAndTab));
+                        line = line.substr(line.find_first_not_of(spaceAndTab));
+                        includeFile(
+                            line,
+                            includeDirectories,
+                            outputFile);
+                    }
+                    else 
+                    {
+                        std::cout << "Unsupported directive \"" << directive << "\"\n";    
+                    }
                 }
             }
+            
         }
         
         if (!preprocessLine)
@@ -103,8 +111,8 @@ void includeFile(
 
     for (auto directory : includeDirectories)
     {
-        includeFilePath = std::filesystem::path{directory};
-        includeFilePath /= includeFileName;
+        includeFilePath = std::filesystem::path{directory} / includeFileName;
+
         if (std::filesystem::exists(includeFilePath))
         {
             if (std::find(includedFiles.begin(), includedFiles.end(), includeFilePath) != includedFiles.end())
@@ -117,10 +125,11 @@ void includeFile(
             {
                 outputFile << line << "\n";
             }
+            std::cout << "Done.\n";
             return;
         }
     }
-    throw std::runtime_error{"Cannot find include file \"" + std::string{includeFileName} + "\""};
+    throw std::runtime_error{"Cannot find include file: " + std::string{includeFileName}};
 }
 
 }
