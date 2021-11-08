@@ -45,11 +45,11 @@ bool processInternal(
 
     if (!sourceFile)
     {
-        throw std::runtime_error{"Failed to open source file \"" + std::string{sourcePath} + "\"\n"};
+        throw std::runtime_error{"VbsPp error. Failed to open source file \"" + std::string{sourcePath} + "\"\n"};
     }
     if (!outputFile)
     {
-        throw std::runtime_error{"Failed to open output file \"" + std::string{outputPath} + "\"\n"};
+        throw std::runtime_error{"VbsPp error. Failed to open output file \"" + std::string{outputPath} + "\"\n"};
     }
 
     std::string originalLine;
@@ -58,41 +58,47 @@ bool processInternal(
     std::string_view::size_type offset;
     bool preprocessLine;
     bool preprocessedFile{false};
+    bool ignore{false};
     while (std::getline(sourceFile, originalLine))
     {
         preprocessLine = false;
-        if (!originalLine.empty())
+
+        line = originalLine;
+        offset = line.find_first_not_of(spaceAndTab);
+        if (offset < line.size())
         {
-            line = originalLine;
-            offset = line.find_first_not_of(spaceAndTab);
-            if (offset < line.size())
+            line = line.substr(offset);
+            if (line.at(0) == '#')
             {
-                line = line.substr();
-                if (line.at(0) == '#')
+                preprocessLine = true;
+                preprocessedFile = true;
+                directive = line.substr(1, line.find_first_of(spaceAndTab) - 1);
+                
+                if (directive == "include")
                 {
-                    preprocessLine = true;
-                    preprocessedFile = true;
-                    directive = line.substr(1, line.find_first_of(spaceAndTab) - 1);
-                    
-                    if (directive == "include")
-                    {
-                        line = line.substr(line.find_first_of(spaceAndTab));
-                        line = line.substr(line.find_first_not_of(spaceAndTab));
-                        includeFile(
-                            line,
-                            includeDirectories,
-                            outputFile);
-                    }
-                    else 
-                    {
-                        std::cout << "Unsupported directive \"" << directive << "\"\n";    
-                    }
+                    line = line.substr(line.find_first_of(spaceAndTab));
+                    line = line.substr(line.find_first_not_of(spaceAndTab));
+                    includeFile(
+                        line,
+                        includeDirectories,
+                        outputFile);
+                }
+                else if (directive == "ignore")
+                {
+                    ignore = true;
+                }
+                else if (directive == "endignore")
+                {
+                    ignore = false;
+                }
+                else 
+                {
+                    std::cout << "VbsPp warning. Unsupported directive \"" << directive << "\"\n";    
                 }
             }
-            
         }
         
-        if (!preprocessLine)
+        if (!preprocessLine && !ignore)
         {
             outputFile << originalLine << "\n";
         }
@@ -128,7 +134,7 @@ void includeFile(
             return;
         }
     }
-    throw std::runtime_error{"Cannot find include file: " + std::string{includeFileName}};
+    throw std::runtime_error{"VbsPp error. Cannot find include file: " + std::string{includeFileName}};
 }
 
 }
