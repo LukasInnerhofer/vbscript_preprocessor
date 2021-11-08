@@ -24,7 +24,7 @@ void process(
 {
     std::string tempFileName{outputPath};
     tempFileName += ".temp";
-    
+
     if (processInternal(sourcePath, includeDirectories, outputPath))
     {
         do
@@ -125,7 +125,6 @@ void includeFile(
             {
                 outputFile << line << "\n";
             }
-            std::cout << "Done.\n";
             return;
         }
     }
