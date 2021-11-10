@@ -3,9 +3,9 @@
 #include <iostream>
 #include <string>
 
+#include "libcommandline/parser.h"
 #include "libcommandline/multi_option.h"
 #include "libcommandline/single_option.h"
-#include "libcommandline/parser.h"
 
 #include "vbscript_preprocessor.h"
 
@@ -29,16 +29,21 @@ int main(int argc, char const *argv[])
     {
         Parser::parse(argc, argv);
     }
-    catch(std::runtime_error const &e)
+    catch (std::runtime_error const &e)
     {
         std::cerr << e.what() << "\n";
         return 1;
     }
 
+    if (*Parser::getHelpFlag())
+    {
+        return 0;
+    }
+
     try 
     {
         VbsPp::process(
-            Parser::getOperands().front(), 
+            Parser::getOperands()->front(), 
             cmdArgs.includeDirectories->getArguments(),
             cmdArgs.outputFile->getArgument());
     } 
