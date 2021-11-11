@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
     {
         VbsPp::process(
             parser.getOperands()->front(), 
-            CmdArgs::includeDirectories->getArguments(),
+            *CmdArgs::includeDirectories->getArguments(),
             CmdArgs::outputFile->getArgument());
     } 
     catch (std::runtime_error const &e) 
