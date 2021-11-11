@@ -9,18 +9,18 @@
 
 #include "vbscript_preprocessor.h"
 
-typedef struct
+struct CmdArgs
 {
     NonNullSharedPtr<LibCommandLine::MultiOption> includeDirectories;
     NonNullSharedPtr<LibCommandLine::SingleOption> outputFile;
-} CmdArgs;
+};
 
 int main(int argc, char const *argv[])
 {
     using namespace LibCommandLine;
     CmdArgs cmdArgs{
-        makeNonNullShared<MultiOption>('i'),
-        makeNonNullShared<SingleOption>('o', Option::Necessity::Required)
+        makeNonNullShared<MultiOption>('i', "include directory"),
+        makeNonNullShared<SingleOption>('o', "output file", Option::Necessity::Required)
     };
     Parser::addOption(cmdArgs.includeDirectories);
     Parser::addOption(cmdArgs.outputFile);
@@ -32,6 +32,7 @@ int main(int argc, char const *argv[])
     catch (std::runtime_error const &e)
     {
         std::cerr << e.what() << "\n";
+        Parser::printHelp(std::cout);
         return 1;
     }
 
