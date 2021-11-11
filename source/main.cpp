@@ -9,34 +9,36 @@
 
 #include "vbscript_preprocessor.h"
 
-struct CmdArgs
+namespace CmdArgs
 {
-    NonNullSharedPtr<LibCommandLine::MultiOption> includeDirectories;
-    NonNullSharedPtr<LibCommandLine::SingleOption> outputFile;
-};
+    using namespace LibCommandLine;
+    auto includeDirectories{
+        makeNonNullShared<MultiOption>('i', "include directory")
+    };
+    auto outputFile{
+        makeNonNullShared<SingleOption>('o', "output file", Option::Necessity::Required)
+    };
+}
 
 int main(int argc, char const *argv[])
 {
     using namespace LibCommandLine;
-    CmdArgs cmdArgs{
-        makeNonNullShared<MultiOption>('i', "include directory"),
-        makeNonNullShared<SingleOption>('o', "output file", Option::Necessity::Required)
-    };
-    Parser::addOption(cmdArgs.includeDirectories);
-    Parser::addOption(cmdArgs.outputFile);
-    Parser::expectOperands(Parser::ExpectedOperands::One);
+    Parser parser{
+        {CmdArgs::includeDirectories, CmdArgs::outputFile}, 
+        Parser::ExpectedOperands::One, 
+        "input file"};
     try
     {
-        Parser::parse(argc, argv);
+        parser.parse(argc, argv);
     }
     catch (std::runtime_error const &e)
     {
         std::cerr << "Error: " << e.what() << "\n";
-        Parser::printHelp(std::cout);
+        parser.printHelp(std::cout);
         return 1;
     }
 
-    if (*Parser::getHelpFlag())
+    if (*parser.getHelpFlag())
     {
         return 0;
     }
@@ -44,9 +46,9 @@ int main(int argc, char const *argv[])
     try 
     {
         VbsPp::process(
-            Parser::getOperands()->front(), 
-            cmdArgs.includeDirectories->getArguments(),
-            cmdArgs.outputFile->getArgument());
+            parser.getOperands()->front(), 
+            CmdArgs::includeDirectories->getArguments(),
+            CmdArgs::outputFile->getArgument());
     } 
     catch (std::runtime_error const &e) 
     {
