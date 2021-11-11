@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
     }
     catch (std::runtime_error const &e)
     {
-        std::cerr << e.what() << "\n";
+        std::cerr << "Error: " << e.what() << "\n";
         Parser::printHelp(std::cout);
         return 1;
     }
@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
     } 
     catch (std::runtime_error const &e) 
     {
-        std::cerr << e.what() << "\n";
+        std::cerr << "Error: " << e.what() << "\n";
         return 1;
     }
     catch (std::exception const &e)
