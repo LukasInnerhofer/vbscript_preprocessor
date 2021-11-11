@@ -58,7 +58,7 @@ bool processInternal(
     std::string_view::size_type offset;
     bool preprocessLine;
     bool preprocessedFile{false};
-    bool ignore{false};
+    unsigned ignore{0};
     while (std::getline(sourceFile, originalLine))
     {
         preprocessLine = false;
@@ -85,20 +85,27 @@ bool processInternal(
                 }
                 else if (directive == "ignore")
                 {
-                    ignore = true;
+                    ++ignore;
                 }
                 else if (directive == "endignore")
                 {
-                    ignore = false;
+                    if (ignore > 0)
+                    {
+                        --ignore;
+                    }
+                    else
+                    {
+                        std::cout << "Warning: endignore without matching ignore.\n";
+                    }
                 }
                 else 
                 {
-                    std::cout << "VbsPp warning. Unsupported directive \"" << directive << "\"\n";    
+                    std::cout << "Warning: Unsupported directive \"" << directive << "\"\n";    
                 }
             }
         }
         
-        if (!preprocessLine && !ignore)
+        if (!preprocessLine && ignore == 0)
         {
             outputFile << originalLine << "\n";
         }
@@ -134,7 +141,7 @@ void includeFile(
             return;
         }
     }
-    throw std::runtime_error{"VbsPp error. Cannot find include file: " + std::string{includeFileName}};
+    throw std::runtime_error{"Error: Cannot find include file: " + std::string{includeFileName}};
 }
 
 }
